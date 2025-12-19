@@ -1,5 +1,3 @@
-# Computer_Vision_finalproject
-
 # Are You Okay? Inactivity Care Alert System for Older Adults
 
 一個智能照護系統，整合 YOLO 物體偵測與 MediaPipe 姿態估計技術，用於監測長者久坐狀況、提供 AR 復健遊戲，並在緊急狀況發生時發送警報。
