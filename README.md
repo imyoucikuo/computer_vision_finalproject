@@ -69,6 +69,11 @@ RECEIVER_EMAIL = "caregiver_email@gmail.com"
 python sittingokayge.py
 
 ```
+或是利用不同區塊的module去做執行
+```bash
+python sittingokayge.py
+
+```
 
 ### 系統操作
 
