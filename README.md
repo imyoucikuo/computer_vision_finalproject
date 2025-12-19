@@ -66,7 +66,7 @@ RECEIVER_EMAIL = "caregiver_email@gmail.com"
 直接執行 Python 腳本：
 
 bash
-python yolo3.py
+python sittingokayge.py
 
 
 ### 系統操作
