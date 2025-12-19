@@ -48,7 +48,7 @@ pip install opencv-python mediapipe pygame numpy flask ultralytics
 * `emergency.mp3` - 緊急警報音效
 
 
-3. **設置 Email **
+3. **設置 Email**
 修改程式碼中的 Email 設定區塊，填入您的 Gmail 與應用程式密碼：
 ```python
 SENDER_EMAIL = "your_email@gmail.com"
