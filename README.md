@@ -1,6 +1,8 @@
-# Smart Care: 銀髮族久坐與復健照護系統
+# Computer_Vision_finalproject
 
-一個結合電腦視覺與物聯網概念的智能照護系統，整合 YOLO 物體偵測與 MediaPipe 姿態估計技術，用於監測長者久坐狀況、提供 AR 復健遊戲，並在緊急狀況發生時發送警報。
+# Are You Okay? Inactivity Care Alert System for Older Adults
+
+一個智能照護系統，整合 YOLO 物體偵測與 MediaPipe 姿態估計技術，用於監測長者久坐狀況、提供 AR 復健遊戲，並在緊急狀況發生時發送警報。
 
 ## 功能特點
 
@@ -69,9 +71,9 @@ RECEIVER_EMAIL = "caregiver_email@gmail.com"
 python sittingokayge.py
 
 ```
-或是利用不同區塊的module去做執行
+或是利用結合不同區塊的module去做執行，可以進行細節修改:
 ```bash
-python sittingokayge.py
+python main.py
 
 ```
 
@@ -117,10 +119,9 @@ WAIT_FOR_STAND_TIMEOUT = 30.0      # 復健模式下等待站立的超時秒數
 
 ### CSV 數據日誌
 
-系統會自動生成兩個 CSV 檔案：
+系統會自動生成 CSV 檔案：
 
 1. **`*_log_events.csv`**：記錄每日總結數據（起立次數、總時間）。
-2. **`*_log_events_events.csv`**：記錄每一次久坐事件的詳細起訖時間與持續長度。
 
 ### Email 警報內容
 
