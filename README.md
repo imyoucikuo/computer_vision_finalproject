@@ -1,163 +1,158 @@
+這份說明文件是完全根據您上傳的 yolo3.py (實際檔名為 `sedentary_final_v81_simple_audio.py`) 的程式碼邏輯與功能，並套用您提供的「基於路徑識別的障礙物偵測系統」架構所撰寫的。
+
+---
 
 # Smart Care: 銀髮族久坐與復健照護系統
-**Smart Care: Inactivity Care Alert System for Older Adults**
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python&logoColor=white)
-![OpenCV](https://img.shields.io/badge/OpenCV-Computer_Vision-green?style=for-the-badge&logo=opencv&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-Web_Dashboard-red?style=for-the-badge&logo=flask&logoColor=white)
-![YOLOv8](https://img.shields.io/badge/YOLO-v8-yellow?style=for-the-badge&logo=yolo&logoColor=white)
-![MediaPipe](https://img.shields.io/badge/MediaPipe-Pose_Estimation-teal?style=for-the-badge&logo=google&logoColor=white)
+一個結合電腦視覺與物聯網概念的智能照護系統，整合 YOLO 物體偵測與 MediaPipe 姿態估計技術，用於監測長者久坐狀況、提供 AR 復健遊戲，並在緊急狀況發生時發送警報。
 
-> **Computer Vision Course Final Project**
+## 功能特點
 
----
+* 🧘 **姿態識別與分析**：結合 YOLOv8 (人體偵測) 與 MediaPipe (骨架分析)，精準判斷「坐姿」與「站姿」，並計算膝蓋與臀部角度。
+* ⏱️ **久坐提醒監控**：即時追蹤坐姿持續時間，超過設定閥值即發出語音警報，引導進行活動。
+* 🎮 **AR 體感復健遊戲**：內建互動式復健模式，使用者需透過肢體動作觸碰螢幕上的虛擬目標，完成指定次數才算達成復健。
+* 🚨 **緊急狀態偵測**：監測長時間無反應（昏厥疑慮）或復健未完成狀況，自動發送 Email 通知照護者。
+* 📉 **即時平衡評估**：分析站立時肩膀的晃動程度，計算平衡分數並給予評級（Excellent/Fair/Poor）。
+* 💻 **Web 儀表板**：基於 Flask 的網頁介面，提供即時影像串流、歷史數據圖表、以及遠端控制功能（如隱私模式、睡眠模式）。
 
-## 📖 專案簡介 (Introduction)
+## 系統架構
 
-**Smart Care** 是一個整合 **YOLOv8 物體偵測** 與 **MediaPipe 姿態估計** 的智能照護系統原型。
-
-本系統專為獨居長者設計，旨在解決「跌倒無人知曉」與「肌少症預防」兩大痛點。透過 WebCam 即時監控，系統能自動判斷長者的坐/站姿態，統計久坐時間，並提供 AR 體感復健遊戲鼓勵運動。一旦偵測到異常（如復健失敗或長時間無反應），系統將自動觸發紅色警報並發送 Email 通知家屬，實現從「日常監測」到「緊急救援」的完整閉環。
-
----
-
-## 🚀 功能特點 (Features)
-
-* 🧘 **精準姿態識別**：採用 YOLOv8 過濾背景雜訊，再由 MediaPipe 進行骨架分析，精準判斷「坐姿」與「站姿」。
-* ⏱️ **久坐提醒監控**：即時追蹤坐姿持續時間，超過設定閥值即發出語音警報，引導長者起身。
-* 🎮 **AR 體感復健遊戲**：互動式復健模式，使用者需揮手觸碰螢幕上的虛擬目標，並伴隨粒子煙火特效作為正向回饋。
-* 🚨 **緊急狀態偵測 (Emergency Detection)**：
-    * **復健失敗**：若在引導後 30 秒內無法站立，視為行動異常。
-    * **意識喪失**：若在一般模式下超過 60 秒完全無細微動作，視為昏厥。
-    * **自動通報**：觸發上述條件時，畫面轉紅、播放警報音，並自動發送 Email 給緊急聯絡人。
-* 📉 **平衡能力評估**：分析站立時肩膀的晃動程度 (Body Sway)，計算平衡分數並給予評級。
-* 💻 **Web 遠端儀表板**：基於 Flask 的 RWD 網頁介面，提供即時影像、歷史數據圖表 (Chart.js)，以及遠端控制功能。
-* 🛡️ **隱私與人性化設計**：
-    * **隱私模式**：一鍵模糊人臉。
-    * **睡眠模式**：休息時暫停偵測與警報。
-
----
-
-## 🏗️ 系統架構 (Architecture)
-
-```mermaid
+‵‵‵mermaid
 graph TD
-    Input[攝影機輸入] --> Preproc[YOLOv8: 人體偵測 & ROI 裁切]
-    Preproc --> Pose[MediaPipe: 33點骨架估計]
-    Pose --> Analysis{狀態機邏輯核心}
-    
-    Analysis -->|正常活動| Status1[累積久坐時間 & 姿勢判斷]
-    Analysis -->|久坐超時| Status2[觸發 AR 復健遊戲]
-    Analysis -->|長時間靜止 / 復健失敗| Status3[緊急狀態 EMERGENCY]
-    
-    Status1 --> Log[CSV 數據紀錄]
-    Status2 --> Game[Pygame 音效 & 粒子特效]
-    Status3 --> Alert[紅色畫面 & Email 推播]
-    
-    Log --> Web[Flask Web Server]
-    Game --> Web
-    Alert --> Web[Web 儀表板: 監控/圖表/控制]
-📂 專案結構 (File Structure)
-建議將程式碼模組化以利維護：
+    A[攝影機輸入] --> B[YOLOv8 人體偵測]
+    B --> C[MediaPipe 姿態估計]
+    C --> D{狀態機邏輯判斷}
+    D -->|久坐超時| E[觸發 AR 復健模式]
+    D -->|無動作/昏厥| F[發送 Email 警報]
+    D -->|正常活動| G[記錄數據 CSV]
+    G --> H[Flask Web 儀表板]
+‵‵‵
 
-Plaintext
+## 環境需求
 
-Smart-Care-System/
-├── main.py                 # 主程式入口 (Entry Point)
-├── config.py               # 系統參數設定 (Email, 閾值, 路徑)
-├── utils.py                # 工具函式庫 (幾何計算, Email發送, 特效)
-├── logger.py               # 數據紀錄模組 (CSV Handler)
-├── pose_logic.py           # 姿勢分析核心演算法
-├── web_server.py           # Flask 網頁伺服器路由
-├── shared_state.py         # 跨執行緒共享變數
-├── sedentary_log.csv       # (自動生成) 每日數據日誌
-├── assets/                 # 音效素材資料夾
-│   ├── up.mp3              # 久坐提醒音
-│   ├── success.mp3         # 遊戲得分音
-│   ├── start.mp3           # 開始復健音
-│   └── emergency.mp3       # 緊急警報音
-└── README.md               # 說明文件
-⚙️ 安裝與設定 (Installation)
-1. 環境需求
-Python 3.8 或以上版本
+* Python 3.8+
+* Web Browser (用於監控儀表板)
+* 網路連接 (用於發送 Email)
 
-Web Browser (Chrome/Safari/Edge)
+## 安裝
 
-網路連接 (用於發送 Email 通知)
+1. **安裝依賴套件**
+bash
+pip install opencv-python mediapipe pygame numpy flask ultralytics
 
-2. 安裝依賴套件
-請在終端機 (Terminal) 執行以下指令：
 
-Bash
 
-pip install opencv-python mediapipe pygame numpy flask ultralytics requests
-3. 音效檔案準備
-請確保專案根目錄下有 up.mp3, success.mp3, start.mp3, emergency.mp3 這四個檔案，否則系統會以無聲模式運行。
+2. **準備音效檔案 (可選)**
+請將以下 mp3 檔案放置於專案根目錄：
+* up.mp3 - 久坐警報音
+* success.mp3 - 復健成功音效
+* start.mp3 - 復健開始音效
+* emergency.mp3 - 緊急警報音效
 
-4. 設定 Email 通知 (⚠️ 重要)
-本系統使用 Gmail SMTP 發送警報。由於 Google 安全性政策，不能使用登入密碼。
 
-前往 Google 帳戶 > 安全性 > 兩步驟驗證 > 應用程式密碼 (App Passwords)。
-
-申請一組新的密碼 (選擇「郵件」/「Windows 電腦」)。
-
-打開 config.py，修改以下設定：
-
-Python
-
-# config.py
-
-# 請填入你的 Gmail
+3. **配置 Email (關鍵)**
+修改程式碼中的 Email 設定區塊，填入您的 Gmail 與應用程式密碼：
+python
 SENDER_EMAIL = "your_email@gmail.com"
-
-# 請填入剛剛申請的 16 位數應用程式密碼 (不要有空格)
-SENDER_PASSWORD = "abcd efgh ijkl mnop" 
-
-# 接收警報的信箱
+SENDER_PASSWORD = "your_app_password"
 RECEIVER_EMAIL = "caregiver_email@gmail.com"
-⚠️ 資安警告：若要將專案上傳至 GitHub 公開倉庫，請務必將 config.py 中的真實密碼刪除，或改用環境變數 (os.getenv) 讀取，以免帳號外洩。
 
-🎮 使用方法 (Usage)
-1. 啟動系統
-在專案目錄下執行：
 
-Bash
 
-python main.py
-系統啟動後會顯示：
 
-OpenCV 視窗：顯示即時偵測畫面。
+## 使用方法
 
-Flask 伺服器：在背景執行，Port 5000。
+### 啟動系統
 
-2. 初始化校正
-使用者請移動至鏡頭前，保持 站立姿勢 約 3-5 秒。待畫面右上方出現綠色的 "System Ready" 字樣，即代表身高比例校正完成，系統開始運作。
+直接執行 Python 腳本：
 
-3. 開啟網頁儀表板
-打開瀏覽器（手機或電腦皆可），輸入網址：
+bash
+python yolo3.py
 
-本機：http://localhost:5000
 
-區網：http://<你的電腦IP>:5000 (例如 192.168.1.100:5000)
+### 系統操作
 
-注意：若是手機瀏覽器，進入網頁後請點擊控制面板上的 「音效」按鈕 或畫面任意處，以解鎖瀏覽器的自動播放限制。
+1. **初始化校正**：系統啟動後，使用者需在鏡頭前**站立**約數秒，待系統顯示 "System Ready" 即完成身高與姿態校正。
+2. **網頁監控**：打開瀏覽器訪問 http://localhost:5000 (或局域網 IP)，即可查看即時畫面與數據。
+3. **互動控制**：透過網頁介面可開關「隱私模式 (模糊人臉)」、「睡眠模式」或執行「系統重置」。
 
-❓ 常見問題 (FAQ)
-Q: 為什麼系統一直顯示 "Please STAND to Calibrate"? A: 系統需要基準身高來作為後續坐姿判斷的依據。請確保全身（至少上半身與膝蓋）完整出現在鏡頭內，並保持直立站姿，直到系統抓取到穩定的骨架數據。
+## 配置說明
 
-Q: 手機瀏覽器聽不到警報聲？ A: 這是手機瀏覽器 (iOS Safari / Android Chrome) 的自動播放安全限制。請在進入網頁後，手動點擊一次控制面板上的「音效開關」按鈕，即可解鎖音效權限。
+主要參數位於程式碼開頭的 **使用者設定區**，可根據需求調整：
 
-Q: 為什麼沒收到 Email 通知？ A: 請依序檢查：
+### 主要配置項
 
-是否已申請 Google App Password (非登入密碼)？
+python
+# 硬體與路徑
+VIDEO_SOURCE = 0          # 攝影機編號 (0 為預設鏡頭)
+CSV_FILE = ".../log.csv"  # 數據日誌儲存路徑
 
-是否在 config.py 中填寫正確？
+# 偵測參數
+YOLO_MODEL = "yolov8n.pt" # 使用的 YOLO 模型
+YOLO_CONF = 0.60          # YOLO 信心度閾值
+ALERT_INTERVAL = 10.0     # 久坐警告觸發時間 (秒，測試用建議短，實際使用可設長)
 
-檢查收件信箱的「垃圾郵件」夾。
+# 安全參數
+UNCONSCIOUS_TIME_THRESHOLD = 60.0  # 無動作視為昏厥的秒數
+WAIT_FOR_STAND_TIMEOUT = 30.0      # 復健模式下等待站立的超時秒數
 
-系統是否處於「睡眠模式」？(睡眠模式下不會發送警報)。
 
-Q: 畫面上的紅色 "EMERGENCY" 怎麼消除？ A: 有兩種方式：
+## 輸出說明
 
-使用者自解：長者只需站起來並面對鏡頭揮手（觸發動態判定）。
+### 網頁儀表板 (Web Dashboard)
 
-遠端解除：照護者在網頁儀表板點擊紅色的 「🔕 解除緊急警報」 按鈕。
+* **即時監控畫面**：疊加骨架、狀態標籤與 AR 遊戲物件。
+* **數據卡片**：今日起立次數、累積久坐時間、最長久坐時間、平衡分數。
+* **圖表分析**：
+* 📊 **今日 24 小時分佈**：每小時的久坐趨勢。
+* 📈 **歷史每日總久坐**：過去 7 天的數據變化。
+
+
+
+### CSV 數據日誌
+
+系統會自動生成兩個 CSV 檔案：
+
+1. **`*_log_events.csv`**：記錄每日總結數據（起立次數、總時間）。
+2. **`*_log_events_events.csv`**：記錄每一次久坐事件的詳細起訖時間與持續長度。
+
+### Email 警報內容
+
+當偵測到緊急狀況 (Emergency) 時，系統會發送 HTML 格式郵件：
+
+> **主旨**：⚠️ [緊急警報] 偵測到長輩長時間無反應！
+> **內容**：包含發生時間與紅色警示文字，通知照護者立即確認。
+
+## 技術細節
+
+### 使用的模型與演算法
+
+* **YOLOv8**：用於初步鎖定畫面中的人物 (ROI)，並支援多目標過濾，選取畫面中最大的人物作為主要監測對象。
+* **MediaPipe Pose**：在 YOLO 鎖定的區域內進行高精度的 33點骨架關鍵點檢測。
+* **幾何角度計算**：
+* 利用 3D 座標計算膝蓋 (Hip-Knee-Ankle) 與臀部 (Shoulder-Hip-Knee) 角度。
+* 結合大腿與軀幹的比例 (Ratio) 來輔助判斷坐/站狀態。
+
+
+* **粒子特效系統**：程式碼內建 Python 類別 `FireworkParticle`，用於繪製復健成功時的煙火慶祝特效。
+
+### 處理流程
+
+1. **YOLO 偵測**：獲取人物 Bounding Box。
+2. **ROI 擴展與裁切**：確保骨架偵測穩定。
+3. **姿態平滑化**：使用 PoseSmoother 減少骨架抖動。
+4. **狀態機判定**：Sitting -> (Time > Limit) -> Rehab Mode -> (Stand Up & Touch Targets) -> Success/Reset。
+
+## 常見問題
+
+**Q: 為什麼系統一直顯示 "Please STAND to Calibrate"?**
+A: 系統需要基準身高來判斷後續的坐姿。請確保全身（至少上半身與膝蓋）在鏡頭內，並保持站立姿勢直到上方出現綠色 "System Ready"。
+
+**Q: 復健遊戲無法觸發目標？**
+A: 遊戲判定是基於手腕關鍵點 (Wrist Landmarks) 與虛擬座標的距離。請確保揮手動作幅度足夠大，且手腕清楚被鏡頭捕捉。
+
+**Q: 如何關閉網頁上的警報音效？**
+A: 網頁儀表板上有一個「網頁音效」按鈕，點擊即可切換開啟或靜音；伺服器端(電腦本機)的音效則需透過修改程式碼或系統音量控制。
+
+**Q: 隱私模式是什麼？**
+A: 開啟後，系統會自動偵測臉部關鍵點區域，並對該區域進行高斯模糊處理 (Gaussian Blur)，保護使用者隱私。
