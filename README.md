@@ -40,7 +40,7 @@ pip install opencv-python mediapipe pygame numpy flask ultralytics
 ```
 
 
-2. **準備音效檔案 (可選)**
+2. **準備音效檔案**
 請將以下 mp3 檔案放置於專案根目錄：
 * `up.mp3` - 久坐警報音
 * `success.mp3` - 復健成功音效
@@ -48,7 +48,7 @@ pip install opencv-python mediapipe pygame numpy flask ultralytics
 * `emergency.mp3` - 緊急警報音效
 
 
-3. **配置 Email (關鍵)**
+3. **設置 Email **
 修改程式碼中的 Email 設定區塊，填入您的 Gmail 與應用程式密碼：
 ```python
 SENDER_EMAIL = "your_email@gmail.com"
@@ -56,8 +56,6 @@ SENDER_PASSWORD = "your_app_password"
 RECEIVER_EMAIL = "caregiver_email@gmail.com"
 
 ```
-
-
 
 ## 使用方法
 
@@ -83,7 +81,7 @@ python main.py
 
 ## 配置說明
 
-主要參數位於程式碼開頭的 **使用者設定區**，可根據需求調整：
+主要參數位於code中的 **config.py**，可根據需求調整：
 
 ### 主要配置項
 
