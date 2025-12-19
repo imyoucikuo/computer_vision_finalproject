@@ -1,10 +1,8 @@
-這份說明文件是完全根據您上傳的 yolo3.py (實際檔名為 `sedentary_final_v81_simple_audio.py`) 的程式碼邏輯與功能，並套用您提供的「基於路徑識別的障礙物偵測系統」架構所撰寫的。
-
----
+# Computer_Vision_finalproject
 
 # Smart Care: 銀髮族久坐與復健照護系統
 
-一個結合電腦視覺與物聯網概念的智能照護系統，整合 YOLO 物體偵測與 MediaPipe 姿態估計技術，用於監測長者久坐狀況、提供 AR 復健遊戲，並在緊急狀況發生時發送警報。
+一個智能照護系統，整合 YOLO 物體偵測與 MediaPipe 姿態估計技術，用於監測長者久坐狀況、提供 AR 復健遊戲，並在緊急狀況發生時發送警報。
 
 ## 功能特點
 
@@ -18,14 +16,14 @@
 ## 系統架構
 
 ‵‵‵mermaid
-graph TD
-    A[攝影機輸入] --> B[YOLOv8 人體偵測]
-    B --> C[MediaPipe 姿態估計]
-    C --> D{狀態機邏輯判斷}
-    D -->|久坐超時| E[觸發 AR 復健模式]
-    D -->|無動作/昏厥| F[發送 Email 警報]
-    D -->|正常活動| G[記錄數據 CSV]
-    G --> H[Flask Web 儀表板]
+graph TD;
+    A[攝影機輸入] --> B[YOLOv8 人體偵測];
+    B --> C[MediaPipe 姿態估計];
+    C --> D{狀態機邏輯判斷};
+    D -->|久坐超時| E[觸發 AR 復健模式];
+    D -->|無動作/昏厥| F[發送 Email 警報];
+    D -->|正常活動| G[記錄數據 CSV];
+    G --> H[Flask Web 儀表板];
 ‵‵‵
 
 ## 環境需求
